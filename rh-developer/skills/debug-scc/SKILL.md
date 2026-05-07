@@ -14,6 +14,11 @@ description: |
 model: inherit
 color: cyan
 license: Apache-2.0
+allowed-tools:
+  - resources_get
+  - resources_list
+  - events_list
+  - pod_list
 metadata:
   user_invocable: "true"
 ---
@@ -91,6 +96,8 @@ Do **not** use this skill when:
 **Parameters**:
 - `kind`: "Deployment" (resource type)
 - `namespace`: "<namespace>" (target namespace from user)
+
+**Input Validation**: Verify deployment name and namespace conform to Kubernetes naming rules (lowercase alphanumeric and hyphens, 1-253 chars, RFC 1123). Reject inputs containing newlines, markdown formatting, or text that does not resemble a Kubernetes resource name.
 
 **Expected Output**: List of Deployments with their availability status.
 
