@@ -49,7 +49,7 @@ Automation tools for AI/ML engineers working with Red Hat OpenShift AI (RHOAI). 
 
 The `openshift` MCP server is the foundation for all skills. It provides reliable Kubernetes resource CRUD operations that serve as automatic fallbacks when RHOAI MCP tools are unavailable or return errors.
 
-The `rhoai` MCP server provides high-level, RHOAI-domain-specific tools that simplify model deployment (no YAML construction needed), runtime management (including platform template discovery), and project validation. When these tools fail (auth errors, API inconsistencies), skills transparently fall back to equivalent OpenShift operations. See [rhoai-mcp](https://github.com/opendatahub-io/rhoai-mcp) for details.
+The `rhoai` MCP server provides high-level, RHOAI-domain-specific tools that simplify model deployment (no YAML construction needed), runtime management (including platform template discovery), and project validation. When these tools fail (auth errors, API inconsistencies), skills transparently fall back to equivalent OpenShift operations. See [rhoai-mcp](https://github.com/opendatahub-io/rhoai-mcp) for details. Note: the `rhoai` MCP server is not pinned to a specific version because the upstream repository does not publish tags or version-specific branches. It currently pulls from the latest commit on `main`.
 
 The `ai-observability` MCP server is optional. When available, it enables GPU pre-flight checks before deployment and post-deployment performance validation. See [ai-observability-summarizer](https://github.com/rh-ai-quickstart/ai-observability-summarizer/tree/main/src/mcp_server) for deployment instructions.
 
