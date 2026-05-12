@@ -97,12 +97,30 @@ def levenshtein(s1: str, s2: str) -> int:
 
 
 def suggest_tool(name: str, available: set[str], max_distance: int = 3) -> str | None:
-    candidates = [(t, levenshtein(name, t)) for t in available]
-    candidates = [(t, d) for t, d in candidates if d <= max_distance]
-    if not candidates:
-        return None
-    candidates.sort(key=lambda x: x[1])
-    return candidates[0][0]
+    best: tuple[str, float] | None = None
+
+    for tool in available:
+        lev = levenshtein(name, tool)
+        if lev <= max_distance:
+            score = lev
+            if best is None or score < best[1]:
+                best = (tool, score)
+
+        name_lower, tool_lower = name.lower(), tool.lower()
+        if name_lower in tool_lower or tool_lower in name_lower:
+            score = 0.5 if name_lower == tool_lower else 1.0
+            if best is None or score < best[1]:
+                best = (tool, score)
+
+        name_parts = set(name_lower.replace("-", "_").split("_"))
+        tool_parts = set(tool_lower.replace("-", "_").split("_"))
+        overlap = name_parts & tool_parts
+        if overlap and len(overlap) >= len(name_parts) * 0.5:
+            score = 2.0 - len(overlap) / max(len(tool_parts), 1)
+            if best is None or score < best[1]:
+                best = (tool, score)
+
+    return best[0] if best else None
 
 
 def read_response(proc: subprocess.Popen, expected_id: int, timeout: int = JSONRPC_TIMEOUT) -> dict | None:
@@ -388,17 +406,38 @@ def validate_pack(pack: str, repo_root: Path, kubeconfig: str) -> ValidationResu
     return result
 
 
+def check_prerequisites() -> str | None:
+    """Return an error message if prerequisites are missing, or None if all OK."""
+    try:
+        subprocess.run(
+            ["podman", "--version"], capture_output=True, text=True, timeout=5,
+        )
+    except FileNotFoundError:
+        return "podman not found on PATH"
+    except subprocess.TimeoutExpired:
+        return "podman --version timed out"
+
+    kubeconfig = os.environ.get("KUBECONFIG", "")
+    if not kubeconfig:
+        default = Path.home() / ".kube" / "config"
+        if not default.exists():
+            return "KUBECONFIG not set and ~/.kube/config not found"
+    return None
+
+
 def main(packs: list[str] | None = None) -> int:
     repo_root = Path(__file__).resolve().parent.parent
+
+    skip_reason = check_prerequisites()
+    if skip_reason:
+        print(f"SKIP: {skip_reason} -- MCP tool validation requires podman and a cluster")
+        return 0
 
     kubeconfig = os.environ.get("KUBECONFIG", "")
     if not kubeconfig:
         default = Path.home() / ".kube" / "config"
         if default.exists():
             kubeconfig = str(default)
-        else:
-            print("ERROR: KUBECONFIG not set and ~/.kube/config not found")
-            return 1
 
     if not packs:
         packs = find_packs(repo_root)
