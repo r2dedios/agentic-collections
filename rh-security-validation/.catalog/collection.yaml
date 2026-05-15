@@ -1,0 +1,62 @@
+# Catalog: maintained via create-collection workflow (assistant + maintainer + PR review).
+# Golden sources: skills/*/SKILL.md, README.md, CLAUDE.md, marketplace/rh-agentic-collection.yml
+# Do not edit ad hoc — follow COLLECTION_SPEC.md and the create-collection skill.
+
+id: rh-security-validation
+name: Red Hat Security Validation
+provider: Red Hat
+version: 0.1.0
+categories:
+- Security
+- Container Security
+- Vulnerability Management
+personas:
+- Security Engineer
+- Platform Engineer
+- DevSecOps
+marketplaces:
+- Claude Code
+support_level: Unknown
+maturity: ORANGE
+description: "Advanced CVE validation for Red Hat container images and OpenShift CoreOS using official SBOMs and VEX data."
+summary: |
+  Validates CVEs against Red Hat container images and CoreOS nodes using official
+  SBOM attestations, Red Hat VEX/CSAF data, and CVE metadata from MITRE/OSV.dev.
+  Eliminates false positives from security scanners and provides clear remediation
+  guidance including layered product relationships and newer image availability.
+contents:
+  description: |
+    The pack provides 4 skills for Red Hat container security validation,
+    supported by 9 helper scripts for deterministic data fetching.
+  skills:
+  - name: container-cve-validator
+    description: Container Image CVE Validation
+    summary_markdown: |
+      Full CVE validation pipeline for Red Hat container images. Extracts official
+      SBOM attestations, checks Red Hat VEX data, performs version comparison,
+      scans for newer patched images, and detects VEX data gaps. Supports CVE IDs
+      and RHSA advisory IDs as input, with batch scanning via CSV files.
+  - name: coreos-cve-validator
+    description: CoreOS CVE Validation
+    summary_markdown: |
+      CVE validation for Red Hat Enterprise Linux CoreOS (RHCOS) in specific OCP
+      releases. Extracts RPM packages from CoreOS images, classifies by source
+      (RHEL/OCP/Fast Datapath), validates against VEX data with RHEL EUS stream
+      awareness, and detects RHCOS VEX discrepancies.
+  - name: cve-recon
+    description: CVE Reconnaissance
+    summary_markdown: |
+      Queries MITRE CVE API, OSV.dev, and Go vulnerability database to produce
+      a structured report of affected packages, ecosystems, and vulnerable
+      version ranges for a given CVE ID.
+  - name: image-inspect
+    description: Container Image Inspection
+    summary_markdown: |
+      Fetches container image labels, validates registry ownership, resolves
+      tag/digest via SBOM, and reports the SBOM artifact OCI reference.
+deploy_and_use: '#deploy_and_use.md'
+documentation_section: '#documentation_section.md'
+mcp_section: |
+  This pack does not use MCP servers. All data fetching is performed via
+  local Python helper scripts that call public APIs directly.
+security_model: '#security_model.md'
