@@ -47,21 +47,36 @@ jobs:
           sudo apt-get update -qq
           sudo apt-get install -y -qq podman
 
-      - name: Create Kind cluster
-        uses: helm/kind-action@0b5c88445f37b7e12a2ce1ecca7805b9046a74db # v1
-        with:
-          cluster_name: mcp-validation
-          wait: 120s
-
-      - name: Capture KUBECONFIG
+      - name: Create dummy kubeconfig
         run: |
-          echo "KUBECONFIG=$(kind get kubeconfig-path --name mcp-validation 2>/dev/null || echo ${HOME}/.kube/config)" >> "$GITHUB_ENV"
+          mkdir -p "$HOME/.kube"
+          cat > "$HOME/.kube/config" <<'KUBECONFIG'
+          apiVersion: v1
+          kind: Config
+          clusters:
+          - cluster:
+              server: https://localhost:6443
+            name: mcp-validation
+          contexts:
+          - context:
+              cluster: mcp-validation
+              user: mcp-validation
+            name: mcp-validation
+          current-context: mcp-validation
+          users:
+          - name: mcp-validation
+            user:
+              token: dummy-token-for-tool-listing
+          KUBECONFIG
+          echo "KUBECONFIG=$HOME/.kube/config" >> "$GITHUB_ENV"
 
       - name: Detect changed packs
         if: github.event_name == 'pull_request'
         id: detect
+        env:
+          BASE_REF: ${{ github.base_ref }}
         run: |
-          CHANGED=$(git diff --name-only "origin/${{ github.base_ref }}...HEAD" \
+          CHANGED=$(git diff --name-only "origin/$BASE_REF...HEAD" \
             | grep -oP '^[^/]+(?=/(?:mcps\.json|skills/))' \
             | sort -u \
             | tr '\n' ' ')
@@ -76,13 +91,17 @@ jobs:
       - name: Validate MCP tools
         env:
           KUBECONFIG: ${{ env.KUBECONFIG }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_PACK: ${{ inputs.pack }}
+          CHANGED_PACKS: ${{ steps.detect.outputs.packs }}
+          PACKS_CHANGED: ${{ steps.detect.outputs.changed }}
         run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ -n "${{ inputs.pack }}" ]; then
-            python scripts/validate_mcp_tools.py "${{ inputs.pack }}"
-          elif [ "${{ github.event_name }}" = "pull_request" ]; then
-            if [ "${{ steps.detect.outputs.changed }}" = "true" ]; then
-              echo "Validating changed packs: ${{ steps.detect.outputs.packs }}"
-              python scripts/validate_mcp_tools.py ${{ steps.detect.outputs.packs }}
+          if [ "$EVENT_NAME" = "workflow_dispatch" ] && [ -n "$INPUT_PACK" ]; then
+            python scripts/validate_mcp_tools.py "$INPUT_PACK"
+          elif [ "$EVENT_NAME" = "pull_request" ]; then
+            if [ "$PACKS_CHANGED" = "true" ]; then
+              echo "Validating changed packs: $CHANGED_PACKS"
+              python scripts/validate_mcp_tools.py $CHANGED_PACKS
             else
               echo "No packs changed, skipping"
               exit 0

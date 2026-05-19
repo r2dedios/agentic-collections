@@ -15,7 +15,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import select
 import subprocess
 import sys
@@ -41,13 +40,6 @@ INIT_MSG = {
 INITIALIZED_NOTIFICATION = {
     "jsonrpc": "2.0",
     "method": "notifications/initialized",
-}
-
-TOOLS_LIST_MSG = {
-    "jsonrpc": "2.0",
-    "id": 2,
-    "method": "tools/list",
-    "params": {},
 }
 
 
@@ -326,8 +318,13 @@ def validate_pack(pack: str, repo_root: Path, kubeconfig: str) -> ValidationResu
         print(f"  WARNING: {pack}/mcps.json not found, skipping pack")
         return result
 
-    with open(mcps_file) as f:
-        config = json.load(f)
+    try:
+        with open(mcps_file) as f:
+            config = json.load(f)
+    except (json.JSONDecodeError, OSError) as e:
+        print(f"  ERROR: failed to parse {pack}/mcps.json: {e}")
+        result.failed += 1
+        return result
 
     servers = config.get("mcpServers", {})
     all_available_tools: set[str] = set()
