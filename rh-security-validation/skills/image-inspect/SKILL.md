@@ -40,7 +40,7 @@ test -f "$SCRIPTS_DIR/inspect_image.py" || { echo "Error: Scripts directory not 
 ```
 The scripts handle tool checks internally (regctl, cosign) and return clear errors if tools are missing.
 
-## Execution Steps
+## Workflow
 
 ### Step 1 — Inspect image metadata
 
