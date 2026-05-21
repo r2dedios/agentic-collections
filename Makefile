@@ -1,4 +1,4 @@
-.PHONY: help install validate validate-collection-schema validate-collection-compliance catalog-mirror-json validate-skill-design validate-skill-design-changed generate serve clean test test-full check-uv
+.PHONY: help install validate validate-collection-schema validate-collection-compliance catalog-mirror-json validate-skill-design validate-skill-design-changed validate-federated generate serve clean test test-full check-uv
 
 help:
 	@echo "agentic-collections Documentation Generator"
@@ -58,6 +58,10 @@ validate-skill-design: check-uv
 
 validate-skill-design-changed: check-uv
 	@VALIDATE_INCLUDE_UNCOMMITTED=1 ./scripts/ci-validate-changed-skills.sh
+
+validate-federated: check-uv
+	@echo "Validating federated modules..."
+	@uv run python scripts/fetch_federated_skills.py
 
 generate: check-uv
 	@echo "Generating documentation..."
