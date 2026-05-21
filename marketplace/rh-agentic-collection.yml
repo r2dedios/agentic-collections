@@ -102,7 +102,16 @@ modules:
 # Each entry points to a public repo at a pinned ref. The build clones, validates,
 # and includes them in the catalog as standalone federated packs.
 # To request federation, open a GitHub issue using the "Federation Request" template.
-federated_modules: []
+federated_modules:
+  - name: "rh-basic-test"
+    description: "Test federation of rh-basic pack"
+    version: "0.1.0"
+    repository: "https://github.com/RHEcosystemAppEng/agentic-collections"
+    ref: "6342d06"
+    pack_path: "rh-basic"
+    tags:
+      - "test"
+      - "federation"
   # Example:
   # - name: "partner-network-tools"
   #   description: "Network troubleshooting skills for SDN and OVN diagnostics"
