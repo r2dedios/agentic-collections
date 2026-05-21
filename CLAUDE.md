@@ -39,6 +39,14 @@ Each pack follows this structure:
 
 Optional (not required for Lola): `.claude-plugin/plugin.json` — Claude Code plugin metadata if you publish this pack through the Claude Code plugin format in addition to Lola.
 
+## Contribution Paths
+
+There are two ways to add skills to this project:
+
+**Direct Contribution** — Skills are added directly to this repository, inside an existing pack. The contributor opens a PR, skills are reviewed and merged, and maintainers own them from that point. Use `/agentic-contribution-skill` in Claude Code or follow [CONTRIBUTING.md](CONTRIBUTING.md).
+
+**Federation** — An external repository containing a complete, independent Lola pack is referenced in our catalog. The code stays in the external repo; users install it directly via Lola. The external owner maintains their pack. To request federation, open a [Federation Request](https://github.com/RHEcosystemAppEng/agentic-collections/issues/new?template=federation-request.yml) issue. Maintainers evaluate the pack using the [Federation Review Guide](docs/FEDERATION_REVIEW_GUIDE.md).
+
 ## Working with Agentic Collections
 
 ### Skills
