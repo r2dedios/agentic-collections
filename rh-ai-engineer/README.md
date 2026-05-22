@@ -49,9 +49,20 @@ Automation tools for AI/ML engineers working with Red Hat OpenShift AI (RHOAI). 
 
 The `openshift` MCP server is the foundation for all skills. It provides reliable Kubernetes resource CRUD operations that serve as automatic fallbacks when RHOAI MCP tools are unavailable or return errors.
 
-The `rhoai` MCP server provides high-level, RHOAI-domain-specific tools that simplify model deployment (no YAML construction needed), runtime management (including platform template discovery), and project validation. When these tools fail (auth errors, API inconsistencies), skills transparently fall back to equivalent OpenShift operations. See [rhoai-mcp](https://github.com/opendatahub-io/rhoai-mcp) for details.
+The `rhoai` MCP server provides high-level, RHOAI-domain-specific tools that simplify model deployment (no YAML construction needed), runtime management (including platform template discovery), and project validation. When these tools fail (auth errors, API inconsistencies), skills transparently fall back to equivalent OpenShift operations. See [rhoai-mcp](https://github.com/opendatahub-io/rhoai-mcp) for details. Note: the upstream project does not publish a public container image or version tags, so this pack runs the server via `uvx` pinned to a specific commit hash for reproducibility.
 
-The `ai-observability` MCP server is optional. When available, it enables GPU pre-flight checks before deployment and post-deployment performance validation. See [ai-observability-summarizer](https://github.com/rh-ai-quickstart/ai-observability-summarizer/tree/main/src/mcp_server) for deployment instructions.
+The `ai-observability` MCP server is optional. When available, it enables GPU pre-flight checks before deployment and post-deployment performance validation.
+
+### Deploying the AI Observability MCP Server
+
+The `ai-observability` server runs inside the cluster to access Prometheus/Thanos and Tempo directly. See the [ai-observability-summarizer repo](https://github.com/rh-ai-quickstart/ai-observability-summarizer) for advanced configuration.
+
+```bash
+git clone https://github.com/rh-ai-quickstart/ai-observability-summarizer.git
+cd ai-observability-summarizer
+make install NAMESPACE=ai-observability
+export AI_OBSERVABILITY_MCP_URL=https://$(oc get route aiobs-mcp-server-route -n ai-observability -o jsonpath='{.spec.host}')
+```
 
 ## Supported Runtimes
 
