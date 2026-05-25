@@ -31,6 +31,13 @@ The ocp-admin collection provides specialized tools for managing OpenShift clust
 - **For cluster operations**:
   - OpenShift cluster access via `KUBECONFIG`
   - For multi-cluster reports, a kubeconfig with multiple contexts
+- **For security validation**:
+  - `python3` + `requests` — helper scripts for API calls
+  - `regctl` — remote image metadata inspection ([install guide](https://github.com/regclient/regclient))
+  - `cosign` — SBOM extraction from container attestations ([install guide](https://github.com/sigstore/cosign))
+  - `syft` — (optional) fallback SBOM generation when attestations are unavailable ([install guide](https://github.com/anchore/syft))
+  - `oc` + `podman` — CoreOS RPM extraction (coreos-cve-validator only)
+  - Registry authentication: `regctl registry login registry.redhat.io` for Red Hat image access
 
 ### Installation (Lola)
 
@@ -328,6 +335,87 @@ Generate consolidated health reports across multiple OpenShift clusters.
 - `assemble.py` - Resolves file references and loads MCP output
 - `aggregate.py` - Computes metrics and identifies issues
 
+### 4. **container-cve-validator** - Container Image CVE Validation
+
+Validate CVEs against Red Hat container images using official SBOM attestations, Red Hat VEX data, and CVE metadata from MITRE/OSV.dev.
+
+**Use when**:
+- "Is CVE-2024-45490 a real issue in my UBI9 image?"
+- "Validate this CVE against registry.redhat.io/ubi9/ubi:latest"
+- "My scanner flagged RHSA-2026:3337 on our image. Is this relevant?"
+- "Batch scan these CVEs from a CSV file"
+
+**What it does**:
+- Extracts official SBOM attestations from container images
+- Checks Red Hat VEX/CSAF data for product-specific vulnerability status
+- Performs version comparison (RPM EVR, Go semver, PyPI, npm)
+- Scans for newer patched images in the same or newer product stream
+- Detects VEX data gaps and recommends reporting to secalert@redhat.com
+- Supports CVE IDs, RHSA advisory IDs, and batch CSV input
+- Output formats: markdown (full/summary), JSON, CSV
+
+**Helper Scripts** (in `scripts/security-validation/`):
+- `validate_input.py` - Validates CVE IDs and image references
+- `inspect_image.py` - Extracts container image metadata via regctl
+- `fetch_cve_metadata.py` - Queries MITRE, OSV.dev, and Go vuln DB
+- `download_sbom.py` - Fetches SBOM attestations from registry
+- `fetch_redhat_vex.py` - Retrieves Red Hat VEX security advisories
+- `scan_newer_images.py` - Finds patched image releases
+
+### 5. **coreos-cve-validator** - CoreOS CVE Validation
+
+Validate CVEs against Red Hat Enterprise Linux CoreOS (RHCOS) in specific OCP releases.
+
+**Use when**:
+- "Does CVE-2025-61726 affect CoreOS in OCP 4.20.16?"
+- "Check this CVE against RHCOS in our OCP cluster"
+- "Validate RHSA against CoreOS"
+
+**What it does**:
+- Extracts full RPM package list from CoreOS images via `oc adm release info` + `podman`
+- Classifies RPMs by source (RHEL repository, OCP repository, Fast Datapath)
+- Validates against VEX data with RHEL EUS stream awareness (not latest RHEL)
+- Detects RHCOS VEX discrepancies (RPM patched in RHEL but CoreOS not rebuilt)
+- Handles both legacy (OCP < 4.19) and RHEL-based (OCP >= 4.19) CoreOS versioning
+
+**Helper Scripts** (in `scripts/security-validation/`):
+- `validate_input.py` - Validates CVE IDs and OCP versions
+- `fetch_cve_metadata.py` - Queries CVE data sources
+- `fetch_coreos_metadata.py` - Extracts CoreOS RPM list (supports `--authfile` for pull secret)
+- `fetch_redhat_vex.py` - Retrieves VEX advisories
+
+### 6. **cve-recon** - CVE Reconnaissance
+
+Query MITRE, OSV.dev, and Go vulnerability database to produce a structured report for a given CVE.
+
+**Use when**:
+- "What packages does CVE-2024-45490 affect?"
+- "Look up CVE details and version ranges"
+- "Get ecosystem and severity info for this CVE"
+
+**What it does**:
+- Queries MITRE CVE API, OSV.dev, and Go vulnerability database in a single call
+- Reports affected packages with ecosystem, version ranges, and CVSS scores
+- Provides cross-references (GO-*, GHSA-*) and deduplicated reference URLs
+- Output formats: markdown, JSON, CSV
+
+### 7. **image-inspect** - Container Image Metadata Inspection
+
+Fetch container image labels, validate registry ownership, resolve tag/digest via SBOM, and report the SBOM artifact reference.
+
+**Use when**:
+- "Inspect this container image"
+- "What SBOM does this image have?"
+- "Check metadata for registry.redhat.io/ubi9/ubi:latest"
+- "Is this image from Red Hat?"
+
+**What it does**:
+- Extracts image labels (CPE, name, vendor, maintainer, build timestamp)
+- Validates registry ownership (official Red Hat vs. mirrored)
+- Resolves tag/digest from SBOM `pkg:oci/` PURL
+- Reports SBOM artifact OCI reference and fetch command
+- Output formats: markdown, JSON, CSV
+
 ---
 
 ## Multi-Cluster Authentication
@@ -513,7 +601,33 @@ User: "Generate a health report for all my clusters"
 Result: Fleet-wide health summary with attention items
 ```
 
-### Workflow 4: Check Cluster Installation Progress
+### Workflow 4: Container CVE Validation
+
+```
+User: "Is CVE-2024-45490 a real issue in registry.redhat.io/ubi9/ubi:latest?"
+→ container-cve-validator skill:
+  - Extracts SBOM from image attestations
+  - Queries MITRE and OSV.dev for affected packages/versions
+  - Checks Red Hat VEX for product-specific status
+  - Scans for newer patched images if a fix exists
+
+Result: True/false positive determination with remediation guidance
+```
+
+### Workflow 5: CoreOS Vulnerability Check
+
+```
+User: "Does CVE-2025-61726 affect CoreOS in OCP 4.20.16?"
+→ coreos-cve-validator skill:
+  - Extracts RPM list from CoreOS image
+  - Matches affected package and checks version
+  - Validates against VEX under OCP and RHEL EUS CPEs
+  - Reports whether CoreOS has been rebuilt with the fix
+
+Result: CoreOS-specific vulnerability assessment with RHEL EUS stream awareness
+```
+
+### Workflow 6: Check Cluster Installation Progress
 
 ```
 User: "What's the status of my cluster installation?"
@@ -650,22 +764,41 @@ ocp-admin/
 ├── skills/
 │   ├── cluster-creator/SKILL.md      # End-to-end cluster deployment
 │   ├── cluster-inventory/SKILL.md    # Cluster discovery and status
-│   └── cluster-report/SKILL.md       # Multi-cluster health reporting
+│   ├── cluster-report/SKILL.md       # Multi-cluster health reporting
+│   ├── container-cve-validator/      # Container image CVE validation
+│   │   ├── SKILL.md
+│   │   └── references/
+│   │       ├── 01-vex-validation-procedure.md
+│   │       └── 02-report-template.md
+│   ├── coreos-cve-validator/SKILL.md # CoreOS CVE validation
+│   ├── cve-recon/SKILL.md            # CVE reconnaissance
+│   └── image-inspect/SKILL.md        # Container image metadata inspection
 └── scripts/
-    └── cluster-report/
-        ├── build-kubeconfig.py       # Multi-cluster authentication
-        ├── cluster-reporter-rbac.yaml
-        ├── assemble.py               # MCP output assembly
-        └── aggregate.py              # Metrics aggregation
+    ├── cluster-report/
+    │   ├── build-kubeconfig.py       # Multi-cluster authentication
+    │   ├── cluster-reporter-rbac.yaml
+    │   ├── assemble.py               # MCP output assembly
+    │   └── aggregate.py              # Metrics aggregation
+    └── security-validation/          # CVE validation helper scripts
+        ├── validate_input.py         # Input validation
+        ├── inspect_image.py          # Image metadata extraction
+        ├── fetch_cve_metadata.py     # MITRE/OSV.dev/Go vuln DB queries
+        ├── download_sbom.py          # SBOM attestation extraction
+        ├── generate_sbom_syft.py     # Fallback SBOM generation
+        ├── fetch_coreos_metadata.py  # CoreOS RPM extraction
+        ├── fetch_redhat_vex.py       # Red Hat VEX data fetching
+        ├── fetch_rhsa_advisory.py    # RHSA advisory resolution
+        └── scan_newer_images.py      # Patched image scanning
 ```
 
 *Optional:* `.claude-plugin/plugin.json` — only if publishing via Claude Code’s plugin format; not required for [Lola](https://github.com/RedHatProductSecurity/lola) install.
 
 ### Key Patterns
 
-- **Skills encapsulate operations** - Each skill handles one category of cluster tasks
-- **Complete lifecycle coverage** - Create → Configure → Monitor → Operate
+- **Skills encapsulate operations** - Each skill handles one category of cluster or security tasks
+- **Complete lifecycle coverage** - Create → Configure → Monitor → Operate → Validate Security
 - **Dual MCP integration** - Assisted Installer (creation) + OpenShift (operations)
+- **Script-based security validation** - Python helper scripts for CVE/SBOM/VEX data fetching (no MCP servers)
 - **Environment-based auth** - OFFLINE_TOKEN (Assisted Installer) + KUBECONFIG (cluster ops)
 - **Human-in-the-loop** - User approval required before critical operations
 - **Comprehensive documentation** - 17 reference docs covering all aspects
@@ -686,6 +819,12 @@ ocp-admin/
 - Respects Kubernetes RBAC permissions
 - ServiceAccount-based authorization for multi-cluster
 - Read-only operations by default (cluster-report)
+
+**Security validation data sources**:
+- Official Red Hat SBOM attestations (build-time and release-time) — extracted via cosign
+- Red Hat VEX/CSAF data from https://security.access.redhat.com/data/csaf/v2/
+- MITRE CVE API, OSV.dev, Go vulnerability database — public APIs, no authentication required
+- No credential files accessed directly — pull secret path provided by user on auth failure only
 
 ---
 
@@ -713,3 +852,8 @@ See main repository [README.md](../README.md) for:
 - [Assisted Service MCP Server](https://github.com/openshift-assisted/assisted-service-mcp) - Documentation for Assisted Service MCP Server
 - [OpenShift MCP Server](https://github.com/openshift/openshift-mcp-server) - Documentation and details for the OpenShift MCP Server
 - [MCP Protocol Specification](https://modelcontextprotocol.io)
+- [Red Hat Security Data](https://security.access.redhat.com/) - Official Red Hat VEX/CSAF data and security advisories
+- [MITRE CVE API](https://cveawg.mitre.org/) - Authoritative CVE metadata source
+- [OSV.dev](https://osv.dev/) - Open Source Vulnerability database
+- [Sigstore cosign](https://github.com/sigstore/cosign) - SBOM attestation extraction tool
+- [regclient](https://github.com/regclient/regclient) - Registry client for image metadata inspection
