@@ -333,7 +333,6 @@ def validate_pack(pack: str, repo_root: Path, kubeconfig: str) -> ValidationResu
 
     servers = config.get("mcpServers", {})
     all_available_tools: set[str] = set()
-    queried_servers = 0
 
     for server_name, server_config in servers.items():
         command = server_config.get("command", "")
@@ -359,7 +358,6 @@ def validate_pack(pack: str, repo_root: Path, kubeconfig: str) -> ValidationResu
             result.skipped_servers.append(f"{server_name} (no tools returned)")
             continue
 
-        queried_servers += 1
         print(f"    {len(tools)} tools available")
         for t in sorted(tools):
             print(f"      - {t}")
