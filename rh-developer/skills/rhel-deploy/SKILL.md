@@ -5,6 +5,7 @@ description: |
 model: inherit
 color: yellow
 license: Apache-2.0
+allowed-tools: inventory__find_host_by_name vulnerability__get_system_cves planning__get_rhel_lifecycle
 metadata:
    user_invocable: "true"
 ---

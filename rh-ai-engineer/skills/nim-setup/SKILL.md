@@ -16,6 +16,7 @@ description: |
 model: inherit
 color: blue
 license: Apache-2.0
+allowed-tools: resources_get resources_list resources_create_or_update events_list list_data_science_projects list_serving_runtimes get_gpu_info
 ---
 
 # /nim-setup Skill

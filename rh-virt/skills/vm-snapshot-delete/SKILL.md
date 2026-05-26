@@ -15,6 +15,7 @@ description: |
 license: Apache-2.0
 model: inherit
 color: yellow
+allowed-tools: resources_get resources_list resources_delete
 ---
 
 # /vm-snapshot-delete Skill

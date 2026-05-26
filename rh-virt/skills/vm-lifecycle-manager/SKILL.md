@@ -16,6 +16,7 @@ description: |
 license: Apache-2.0
 model: inherit
 color: blue
+allowed-tools: vm_lifecycle resources_get
 ---
 
 # /vm-lifecycle-manager Skill

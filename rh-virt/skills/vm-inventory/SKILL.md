@@ -16,6 +16,7 @@ description: |
 license: Apache-2.0
 model: inherit
 color: cyan
+allowed-tools: resources_list resources_get
 ---
 
 # /vm-inventory Skill

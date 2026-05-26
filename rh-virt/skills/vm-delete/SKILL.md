@@ -16,6 +16,7 @@ description: |
 license: Apache-2.0
 model: inherit
 color: red
+allowed-tools: resources_get resources_delete resources_list resources_create_or_update vm_lifecycle pods_list_in_namespace
 ---
 
 # /vm-delete Skill

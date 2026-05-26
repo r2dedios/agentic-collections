@@ -16,6 +16,7 @@ description: |
 license: Apache-2.0
 model: inherit
 color: yellow
+allowed-tools: resources_list resources_get resources_create_or_update vm_lifecycle nodes_top pods_top nodes_stats_summary
 ---
 
 # /vm-rebalance Skill

@@ -13,6 +13,7 @@ description: |
 model: inherit
 color: yellow
 license: Apache-2.0
+allowed-tools: job_templates_list job_templates_retrieve job_templates_launch_retrieve jobs_list jobs_job_events_list workflow_job_templates_list inventories_list hosts_list
 ---
 
 # Execution Risk Analyzer

@@ -16,6 +16,7 @@ description: |
 license: Apache-2.0
 model: inherit
 color: cyan
+allowed-tools: configuration_contexts_list resources_get nodes_top resources_list namespaces_list pods_list
 metadata:
   mcp_server: openshift-administration
   mcp_tools_priority: true

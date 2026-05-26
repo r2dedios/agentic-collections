@@ -67,9 +67,12 @@ class ValidationResult:
     total_skills: int = 0
     passed: int = 0
     skipped: int = 0
+    warned: int = 0
     failed: int = 0
     findings: list[Finding] = field(default_factory=list)
+    warnings: list[Finding] = field(default_factory=list)
     skipped_servers: list[str] = field(default_factory=list)
+    has_skipped_servers: bool = False
 
     @property
     def success(self) -> bool:
@@ -356,7 +359,11 @@ def validate_pack(pack: str, repo_root: Path, kubeconfig: str) -> ValidationResu
             continue
 
         print(f"    {len(tools)} tools available")
+        for t in sorted(tools):
+            print(f"      - {t}")
         all_available_tools.update(tools)
+
+    result.has_skipped_servers = len(result.skipped_servers) > 0
 
     if all_available_tools:
         print(f"  Combined tool pool: {len(all_available_tools)} unique tools")
@@ -386,6 +393,23 @@ def validate_pack(pack: str, repo_root: Path, kubeconfig: str) -> ValidationResu
         if not missing:
             result.passed += 1
             print(f"  PASS {pack}/{skill_name}: all {len(declared_tools)} tools validated")
+        elif result.has_skipped_servers:
+            verified = [t for t in declared_tools if t in all_available_tools]
+            result.warned += 1
+            rel_path = str(skill_file.relative_to(repo_root))
+            for tool in missing:
+                suggestion = suggest_tool(tool, all_available_tools)
+                finding = Finding(
+                    skill=skill_name,
+                    pack=pack,
+                    tool=tool,
+                    file_path=rel_path,
+                    line_number=line_number,
+                    suggestion=suggestion,
+                )
+                result.warnings.append(finding)
+            print(f"  WARN {pack}/{skill_name}: {len(verified)}/{len(declared_tools)} tools verified, "
+                  f"{len(missing)} unverifiable (MCP server not started)")
         else:
             result.failed += 1
             rel_path = str(skill_file.relative_to(repo_root))
@@ -463,8 +487,10 @@ def main(packs: list[str] | None = None) -> int:
         combined.total_skills += result.total_skills
         combined.passed += result.passed
         combined.skipped += result.skipped
+        combined.warned += result.warned
         combined.failed += result.failed
         combined.findings.extend(result.findings)
+        combined.warnings.extend(result.warnings)
         combined.skipped_servers.extend(result.skipped_servers)
         print()
 
@@ -474,26 +500,35 @@ def main(packs: list[str] | None = None) -> int:
     print("-" * 66)
     print(f"  Total skills:                {combined.total_skills}")
     print(f"  Passed:                      {combined.passed}")
+    print(f"  Warned (unverifiable):       {combined.warned}")
     print(f"  Skipped (no allowed-tools):  {combined.skipped}")
     print(f"  Failed:                      {combined.failed}")
     print()
 
     if combined.skipped_servers:
-        print("Skipped MCP servers:")
+        print("Skipped MCP servers (non-container or unreachable):")
         for s in combined.skipped_servers:
             print(f"  - {s}")
         print()
 
+    if combined.warnings:
+        print("WARNINGS (tools from skipped MCP servers, cannot verify):")
+        for w in combined.warnings:
+            print(f"  - {w}")
+        print()
+
     if combined.findings:
-        print("FINDINGS:")
+        print("FAILURES (tools missing from started MCP servers):")
         for f in combined.findings:
             print(f"  - {f}")
         print()
 
     if not combined.success:
-        print("VALIDATION FAILED - tool name mismatches detected")
+        print("VALIDATION FAILED - tool name mismatches detected in started servers")
         print("Check mcps.json for the correct tool names.")
         return 1
+    elif combined.warned > 0:
+        print("PASSED WITH WARNINGS - some tools could not be verified (MCP servers not started)")
     elif combined.skipped > 0:
         print("PASSED WITH WARNINGS - some skills have no allowed-tools")
     else:

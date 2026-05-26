@@ -19,6 +19,7 @@ description: |
 color: green
 model: inherit
 license: Apache-2.0
+allowed-tools: resources_create_or_update resources_list resources_get resources_delete events_list pods_list pods_log list_data_science_projects get_pipeline_server delete_pipeline_server list_resources get_resource list_resource_names resource_status diagnose_resource list_data_connections project_summary
 ---
 
 # /pipeline-manage Skill

@@ -17,6 +17,7 @@ description: |
 color: cyan
 model: inherit
 license: Apache-2.0
+allowed-tools: resources_create_or_update resources_get resources_list list_registered_models get_registered_model list_model_versions get_model_version get_model_artifacts get_model_benchmarks get_catalog_model_artifacts list_data_science_projects list_data_connections
 ---
 
 # /model-registry Skill

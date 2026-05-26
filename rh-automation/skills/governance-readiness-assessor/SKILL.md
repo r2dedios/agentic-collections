@@ -14,6 +14,7 @@ description: |
 model: inherit
 color: red
 license: Apache-2.0
+allowed-tools: workflow_job_templates_list job_templates_list notification_templates_list execution_environments_list notification_templates_create execution_environments_create users_list teams_list role_user_assignments_list role_team_assignments_list authenticators_list teams_create role_user_assignments_create authenticators_create credentials_list credential_types_list credentials_create instance_groups_list activity_stream_list instance_groups_create inventories_list hosts_list
 ---
 
 # Governance Readiness Assessor

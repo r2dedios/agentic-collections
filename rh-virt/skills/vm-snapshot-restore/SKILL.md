@@ -15,6 +15,7 @@ description: |
 license: Apache-2.0
 model: inherit
 color: red
+allowed-tools: resources_create_or_update resources_get vm_lifecycle
 ---
 
 # /vm-snapshot-restore Skill

@@ -20,6 +20,7 @@ description: |
 license: Apache-2.0
 model: inherit
 color: green
+allowed-tools: list_versions create_cluster cluster_info set_cluster_vips set_host_role cluster_iso_download_url install_cluster cluster_credentials_download_url cluster_logs_download_url list_static_network_config generate_nmstate_yaml validate_nmstate_yaml alter_static_network_config_nmstate_for_host
 metadata:
   mcp_server: openshift-self-managed
   mcp_tools_priority: true

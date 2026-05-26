@@ -12,6 +12,7 @@ description: |
 model: inherit
 color: red
 license: Apache-2.0
+allowed-tools: job_templates_list job_templates_retrieve job_templates_launch_retrieve job_templates_launch_create jobs_list jobs_retrieve jobs_job_events_list jobs_job_host_summaries_list jobs_relaunch_create workflow_job_templates_list inventories_list hosts_list notification_templates_list credentials_list instance_groups_list users_list
 ---
 
 # Governance Executor

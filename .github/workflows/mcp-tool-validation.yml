@@ -57,16 +57,26 @@ jobs:
           - cluster:
               server: https://localhost:6443
             name: mcp-validation
+          - cluster:
+              server: https://localhost:6444
+            name: mcp-validation-2
           contexts:
           - context:
               cluster: mcp-validation
               user: mcp-validation
             name: mcp-validation
+          - context:
+              cluster: mcp-validation-2
+              user: mcp-validation-2
+            name: mcp-validation-2
           current-context: mcp-validation
           users:
           - name: mcp-validation
             user:
               token: dummy-token-for-tool-listing
+          - name: mcp-validation-2
+            user:
+              token: dummy-token-for-tool-listing-2
           KUBECONFIG
           echo "KUBECONFIG=$HOME/.kube/config" >> "$GITHUB_ENV"
 

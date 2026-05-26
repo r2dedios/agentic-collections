@@ -19,6 +19,7 @@ description: |
 model: inherit
 color: blue
 license: Apache-2.0
+allowed-tools: inventory__get_host_details vulnerability__get_cve_systems
 ---
 
 # Fleet Inventory Skill

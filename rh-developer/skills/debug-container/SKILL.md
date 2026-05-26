@@ -5,6 +5,7 @@ description: |
 model: inherit
 color: cyan
 license: Apache-2.0
+allowed-tools: container_list container_inspect container_logs image_list
 metadata:
   user_invocable: "true"
 ---

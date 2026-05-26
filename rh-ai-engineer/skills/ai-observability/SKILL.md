@@ -18,6 +18,7 @@ description: |
 model: inherit
 color: cyan
 license: Apache-2.0
+allowed-tools: list_models list_vllm_namespaces get_gpu_info get_deployment_info analyze_vllm chat_vllm analyze_openshift list_openshift_metric_groups list_openshift_namespaces query_tempo_tool get_trace_details_tool search_metrics execute_promql korrel8r_get_correlated list_data_science_projects list_inference_services get_inference_service resources_get resources_list pods_list
 ---
 
 # /ai-observability Skill

@@ -12,6 +12,7 @@ description: |
 model: inherit
 color: blue
 license: Apache-2.0
+allowed-tools: job_templates_list inventories_list notification_templates_list credentials_list instance_groups_list users_list
 ---
 
 # AAP MCP Validator

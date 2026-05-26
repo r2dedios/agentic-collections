@@ -16,6 +16,7 @@ description: |
 license: Apache-2.0
 model: inherit
 color: cyan
+allowed-tools: list_clusters cluster_info cluster_events cluster_logs_download_url
 metadata:
   mcp_servers:
     - openshift-self-managed

@@ -17,6 +17,7 @@ description: |
 model: inherit
 color: blue
 license: Apache-2.0
+allowed-tools: resources_get resources_list resources_create_or_update list_serving_runtimes create_serving_runtime list_data_science_projects list_models
 ---
 
 # /serving-runtime-config Skill

@@ -5,6 +5,7 @@ description: |
 model: inherit
 color: green
 license: Apache-2.0
+allowed-tools: resources_list resources_create_or_update pods_log
 metadata:
    user_invocable: "true"
 ---

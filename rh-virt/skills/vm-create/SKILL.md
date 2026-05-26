@@ -16,6 +16,7 @@ description: |
 license: Apache-2.0
 model: inherit
 color: green
+allowed-tools: vm_create resources_get resources_list namespaces_list events_list vm_lifecycle resources_create_or_update
 ---
 
 # /vm-create Skill

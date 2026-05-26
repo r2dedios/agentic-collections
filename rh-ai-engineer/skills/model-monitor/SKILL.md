@@ -18,6 +18,7 @@ description: |
 model: inherit
 color: blue
 license: Apache-2.0
+allowed-tools: resources_get resources_list resources_create_or_update pods_list pods_log events_list list_inference_services get_inference_service list_data_science_projects execute_promql
 ---
 
 # /model-monitor Skill

@@ -12,6 +12,7 @@ description: |
 model: inherit
 color: yellow
 license: Apache-2.0
+allowed-tools: job_templates_list jobs_retrieve jobs_job_events_list jobs_job_host_summaries_list jobs_stdout_retrieve inventories_list hosts_list hosts_variable_data_retrieve notification_templates_list credentials_list instance_groups_list users_list
 ---
 
 # Forensic Troubleshooter

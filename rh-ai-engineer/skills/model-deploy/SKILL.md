@@ -17,6 +17,7 @@ description: |
 model: inherit
 color: green
 license: Apache-2.0
+allowed-tools: resources_get resources_list resources_create_or_update pods_list pods_log events_list deploy_model list_inference_services get_inference_service get_model_endpoint list_serving_runtimes list_data_science_projects list_data_connections get_gpu_info get_deployment_info analyze_vllm
 ---
 
 # /model-deploy Skill

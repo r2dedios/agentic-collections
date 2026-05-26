@@ -21,6 +21,7 @@ metadata:
   author: "Red Hat Ecosystem Engineering"
   version: "1.0"
 license: Apache-2.0
+allowed-tools: resources_get resources_list resources_create_or_update resources_delete events_list pods_list list_data_science_projects list_workbenches get_workbench create_workbench start_workbench stop_workbench delete_workbench get_workbench_url list_storage create_storage delete_storage list_data_connections
 ---
 
 # /workbench-manage Skill

@@ -13,6 +13,7 @@ description: |
 model: inherit
 color: blue
 license: Apache-2.0
+allowed-tools: hosts_list hosts_variable_data_retrieve
 ---
 
 # Host Fact Inspector

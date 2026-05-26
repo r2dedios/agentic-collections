@@ -17,6 +17,7 @@ description: |
 model: inherit
 color: yellow
 license: Apache-2.0
+allowed-tools: resources_get resources_list pods_list pods_log events_list list_inference_services get_inference_service get_model_endpoint get_deployment_info analyze_vllm chat_vllm get_gpu_info analyze_openshift query_tempo_tool get_trace_details_tool execute_promql korrel8r_get_correlated
 ---
 
 # /debug-inference Skill

@@ -18,6 +18,7 @@ description: |
 model: inherit
 color: blue
 license: Apache-2.0
+allowed-tools: resources_get resources_list resources_create_or_update resources_delete pods_list pods_log events_list list_inference_services get_inference_service get_model_endpoint test_model_endpoint deploy_model list_serving_runtimes recommend_serving_runtime execute_promql analyze_vllm
 ---
 
 # /guardrails-config Skill

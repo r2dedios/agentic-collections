@@ -17,6 +17,7 @@ description: |
 model: inherit
 color: blue
 license: Apache-2.0
+allowed-tools: vulnerability__get_cve vulnerability__get_cve_systems inventory__get_host_details
 ---
 
 # Remediation Verification Skill

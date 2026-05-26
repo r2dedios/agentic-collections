@@ -11,6 +11,7 @@ description: |
 model: inherit
 color: blue
 license: Apache-2.0
+allowed-tools: job_templates_list job_templates_retrieve projects_list inventories_list job_templates_launch_retrieve
 ---
 
 # AAP Job Template Creator Skill

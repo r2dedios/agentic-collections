@@ -5,6 +5,7 @@ description: |
 model: inherit
 color: cyan
 license: Apache-2.0
+allowed-tools: inventory__find_host_by_name vulnerability__get_system_cves advisor__get_active_rules advisor__get_rule_by_text_search
 metadata:
   user_invocable: "true"
 ---
